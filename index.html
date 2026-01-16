@@ -1,203 +1,138 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Por Mais Uma Vida</title>
 
 <style>
-*{box-sizing:border-box;}
-:root{
-  --bg:#020617; --bg2:#0f172a; --card:#111827;
-  --text:#e5e7eb; --sub:#9ca3af; --accent:#4f46e5; --line:#1e293b;
+body {
+  background: #0b1220;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  padding: 20px;
 }
-body{
-  margin:0;padding:20px;
-  background:linear-gradient(180deg,var(--bg),var(--bg2));
-  font-family:system-ui,sans-serif;color:var(--text);
+h1 { text-align: center; }
+.card {
+  background: #111a2e;
+  padding: 15px;
+  border-radius: 12px;
+  margin-top: 15px;
 }
-.container{max-width:900px;margin:auto;}
-h1{text-align:center;font-weight:500;}
-.sub{text-align:center;color:var(--sub);margin-bottom:20px;}
-.box{
-  background:var(--card);border-radius:18px;padding:16px;
-  margin-bottom:30px;box-shadow:0 20px 40px rgba(0,0,0,.4);
+input, textarea, button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
 }
-input,textarea{
-  width:100%;background:transparent;border:1px solid var(--line);
-  border-radius:12px;padding:12px;color:var(--text);
-  margin-bottom:10px;font-size:1em;
+button {
+  background: #5a5cff;
+  color: white;
+  font-size: 16px;
 }
-textarea{height:90px;resize:none;}
-button{
-  width:100%;padding:14px;border:none;border-radius:14px;
-  background:var(--accent);color:white;cursor:pointer;
+.like {
+  cursor: pointer;
 }
-.posts{display:grid;grid-template-columns:1fr;gap:16px;}
-@media(min-width:700px){.posts{grid-template-columns:1fr 1fr;}}
-.post{
-  background:var(--card);border-radius:18px;padding:14px;
-  cursor:pointer;animation:flutuar 6s ease-in-out infinite;
-}
-@keyframes flutuar{
-  0%{transform:translateY(0)}
-  50%{transform:translateY(-6px)}
-  100%{transform:translateY(0)}
-}
-.autor{font-size:.8em;color:var(--sub);margin-bottom:6px;}
-.meta{font-size:.8em;color:#93c5fd;margin-top:6px;}
-.overlay,.modal{
-  position:fixed;inset:0;background:rgba(2,6,23,.8);
-  display:none;align-items:center;justify-content:center;z-index:10;
-}
-.zoom,.modalBox{
-  background:var(--card);border-radius:20px;padding:20px;
-  width:90%;max-width:500px;
-}
-.apoio{
-  border-left:3px solid #60a5fa;
-  padding-left:10px;margin-top:8px;font-size:.85em;
-}
-footer{
-  margin-top:40px;border-top:1px solid var(--line);
-  padding-top:20px;font-size:.85em;color:var(--sub);
+small {
+  color: #aaa;
 }
 </style>
 </head>
 
 <body>
-<div class="container">
 
 <h1>Por Mais Uma Vida</h1>
-<div class="sub">Você não precisa ser forte aqui.</div>
+<p style="text-align:center">Você não precisa ser forte aqui.</p>
 
-<div class="box">
+<div class="card">
   <input id="nome" placeholder="Seu nome (opcional)">
-  <textarea id="texto" placeholder="Como foi seu dia?"></textarea>
-  <button onclick="postar()">Desabafar</button>
+  <textarea id="texto" placeholder="Escreva seu desabafo..."></textarea>
+  <button onclick="publicar()">Desabafar</button>
 </div>
 
-<div id="posts" class="posts"></div>
+<div id="lista"></div>
 
-<footer>
-  <p><strong>Aviso importante:</strong><br>
-  Se estiver em risco imediato, ligue <strong>188 (CVV)</strong>.</p>
-  <p>Desenvolvido por <strong>Kaleb Matos</strong></p>
-</footer>
-</div>
+<p style="margin-top:30px; text-align:center; font-size:12px;">
+Se estiver em risco imediato, ligue <b>188 (CVV)</b><br>
+Desenvolvido por Kaleb Matos
+</p>
 
-<div class="overlay" id="overlay" onclick="fecharZoom()">
-  <div class="zoom" id="zoomBox"></div>
-</div>
-
-<div class="modal" id="modal">
-  <div class="modalBox">
-    <input id="apoioNome" placeholder="Seu nome (opcional)">
-    <textarea id="apoioTexto" placeholder="Mensagem de apoio"></textarea>
-    <button onclick="enviarApoio()">Enviar apoio</button>
-  </div>
-</div>
-
-<!-- 🔥 FIREBASE -->
+<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
 import {
-  getFirestore, collection, addDoc, getDocs,
-  doc, updateDoc, increment, arrayUnion, serverTimestamp
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
+  updateDoc,
+  increment
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCZSFGunkDsK8m3EowBLY9d2nEDZva5Is4",
   authDomain: "por-mais-uma-vida.firebaseapp.com",
   projectId: "por-mais-uma-vida",
+  storageBucket: "por-mais-uma-vida.firebasestorage.app",
+  messagingSenderId: "909230295729",
+  appId: "1:909230295729:web:f0a6a2775ff84e4f63b090"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const col = collection(db, "desabafos");
 
-const postsDiv = document.getElementById("posts");
-let postAtual = null;
-let postsCache = [];
+window.publicar = async () => {
+  const nome = document.getElementById("nome").value || "Anônimo";
+  const texto = document.getElementById("texto").value.trim();
+  if (!texto) return alert("Escreva algo.");
 
-function tempoDecorrido(ts){
-  const diff=Math.floor((Date.now()-ts)/1000);
-  if(diff<60)return"agora";
-  if(diff<3600)return`há ${Math.floor(diff/60)} min`;
-  if(diff<86400)return`há ${Math.floor(diff/3600)}h`;
-  return`há ${Math.floor(diff/86400)} dias`;
-}
-
-async function carregarPosts(){
-  postsDiv.innerHTML="";
-  postsCache=[];
-  const snap = await getDocs(collection(db,"posts"));
-  snap.forEach(d=>{
-    postsCache.push({id:d.id,...d.data()});
+  await addDoc(col, {
+    nome,
+    texto,
+    likes: 0,
+    criadoEm: serverTimestamp()
   });
-  postsCache.sort((a,b)=>b.criadoEm?.seconds-a.criadoEm?.seconds);
-  render();
+
+  document.getElementById("texto").value = "";
+};
+
+function tempo(ts) {
+  if (!ts) return "";
+  const s = Math.floor((Date.now() - ts.toMillis()) / 1000);
+  if (s < 60) return "agora";
+  if (s < 3600) return `há ${Math.floor(s/60)} min`;
+  if (s < 86400) return `há ${Math.floor(s/3600)} h`;
+  return `há ${Math.floor(s/86400)} dias`;
 }
 
-function render(){
-  postsDiv.innerHTML="";
-  postsCache.forEach((p,i)=>{
-    const d=document.createElement("div");
-    d.className="post";
-    d.onclick=()=>abrirZoom(i);
-    d.innerHTML=`
-      <div class="autor">— ${p.autor}</div>
-      <div>${p.texto}</div>
-      <div class="meta">
-        👁 ${p.views||0} · ❤️ ${(p.apoios||[]).length}
-      </div>`;
-    postsDiv.appendChild(d);
+const q = query(col, orderBy("criadoEm", "desc"));
+onSnapshot(q, snap => {
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+  snap.forEach(d => {
+    const x = d.data();
+    lista.innerHTML += `
+      <div class="card">
+        <small>${x.nome} • ${tempo(x.criadoEm)}</small>
+        <p>${x.texto}</p>
+        <span class="like" onclick="like('${d.id}')">❤️ ${x.likes}</span>
+      </div>
+    `;
   });
-}
+});
 
-async function postar(){
-  const nome=nome.value.trim()||"Anônimo";
-  const texto=document.getElementById("texto").value.trim();
-  if(!texto) return;
-  await addDoc(collection(db,"posts"),{
-    autor:nome,texto,views:0,apoios:[],criadoEm:serverTimestamp()
+window.like = async (id) => {
+  await updateDoc(doc(db, "desabafos", id), {
+    likes: increment(1)
   });
-  document.getElementById("texto").value="";
-  carregarPosts();
-}
-
-async function abrirZoom(i){
-  postAtual=i;
-  const p=postsCache[i];
-  await updateDoc(doc(db,"posts",p.id),{views:increment(1)});
-  zoomBox.innerHTML=`
-    <div class="autor">— ${p.autor}</div>
-    <div>${p.texto}</div>
-    <div class="meta" onclick="abrirModal()">❤️ Apoiar</div>
-    ${(p.apoios||[]).map(a=>`
-      <div class="apoio">💙 <strong>${a.autor}</strong>: ${a.texto}</div>
-    `).join("")}
-  `;
-  overlay.style.display="flex";
-  carregarPosts();
-}
-
-function fecharZoom(){overlay.style.display="none";}
-function abrirModal(){modal.style.display="flex";}
-
-async function enviarApoio(){
-  const nome=apoioNome.value.trim()||"Anônimo";
-  const texto=apoioTexto.value.trim();
-  if(!texto)return;
-  const p=postsCache[postAtual];
-  await updateDoc(doc(db,"posts",p.id),{
-    apoios:arrayUnion({autor:nome,texto})
-  });
-  apoioTexto.value="";
-  modal.style.display="none";
-  carregarPosts();
-}
-
-carregarPosts();
+};
 </script>
+
 </body>
 </html>
