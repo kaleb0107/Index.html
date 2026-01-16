@@ -2,136 +2,256 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Por Mais Uma Vida</title>
 
 <style>
 body {
-  background: #0b1220;
-  color: #fff;
-  font-family: Arial, sans-serif;
+  margin: 0;
   padding: 20px;
+  background: radial-gradient(circle at top, #020617, #020617, #000);
+  font-family: system-ui, sans-serif;
+  color: #e5e7eb;
 }
-h1 { text-align: center; }
-.card {
-  background: #111a2e;
-  padding: 15px;
-  border-radius: 12px;
-  margin-top: 15px;
+
+.container {
+  max-width: 1100px;
+  margin: auto;
 }
-input, textarea, button {
+
+h1 {
+  text-align: center;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.sub {
+  text-align: center;
+  font-size: 0.95em;
+  color: #9ca3af;
+  margin-bottom: 30px;
+}
+
+/* CAIXA DE POSTAR */
+.box {
+  background: linear-gradient(145deg, #0f172a, #020617);
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.6);
+  margin-bottom: 40px;
+}
+
+input, textarea {
   width: 100%;
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+  padding: 14px;
+  color: #e5e7eb;
+  margin-bottom: 12px;
+  font-size: 1em;
 }
+
+textarea {
+  resize: none;
+  height: 110px;
+}
+
 button {
-  background: #5a5cff;
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  border: none;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
   color: white;
-  font-size: 16px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
 }
-.like {
+
+button:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(99,102,241,.6);
+}
+
+/* GRID DOS POSTS */
+#posts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+/* POST */
+.post {
+  background: linear-gradient(160deg, #111827, #020617);
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.5);
+  animation: surgir .6s ease forwards;
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+
+.post:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 20px 50px rgba(0,0,0,.7);
+}
+
+@keyframes surgir {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.autor {
+  font-size: .8em;
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+
+.tempo {
+  font-size: .7em;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.texto {
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+
+.acoes {
+  font-size: .85em;
+  color: #93c5fd;
   cursor: pointer;
 }
-small {
-  color: #aaa;
+
+.acoes:hover {
+  text-decoration: underline;
+}
+
+.apoio {
+  margin-top: 8px;
+  padding-left: 10px;
+  border-left: 3px solid #60a5fa;
+  font-size: .85em;
+  color: #c7d2fe;
+}
+
+footer {
+  margin-top: 50px;
+  padding-top: 20px;
+  border-top: 1px solid #1e293b;
+  font-size: 0.85em;
+  color: #9ca3af;
+  line-height: 1.5;
+  text-align: center;
 }
 </style>
 </head>
 
 <body>
+<div class="container">
 
 <h1>Por Mais Uma Vida</h1>
-<p style="text-align:center">Você não precisa ser forte aqui.</p>
+<div class="sub">Você não precisa ser forte aqui.</div>
 
-<div class="card">
-  <input id="nome" placeholder="Seu nome (opcional)">
-  <textarea id="texto" placeholder="Escreva seu desabafo..."></textarea>
-  <button onclick="publicar()">Desabafar</button>
+<div class="box">
+  <input id="nomePost" placeholder="Seu nome (opcional)" />
+  <textarea id="textoPost" placeholder="Como foi seu dia?"></textarea>
+  <button onclick="criarPost()">Desabafar</button>
 </div>
 
-<div id="lista"></div>
+<div id="posts"></div>
 
-<p style="margin-top:30px; text-align:center; font-size:12px;">
-Se estiver em risco imediato, ligue <b>188 (CVV)</b><br>
-Desenvolvido por Kaleb Matos
-</p>
+<footer>
+  <div>
+    Em risco imediato, ligue <strong>188 (CVV)</strong><br>
+    Projeto sem fins lucrativos — <strong>Kaleb Matos</strong>
+  </div>
 
-<!-- FIREBASE -->
+  <div style="margin-top: 12px; font-size: 0.75em; opacity: 0.8;">
+    Sou um jovem de 17 anos que entende o valor de uma vida e acredita
+    que oferecer escuta, empatia e acolhimento pode fazer a diferença
+    no momento mais difícil de alguém.
+  </div>
+</footer>
+
+</div>
+
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
-  getFirestore,
-  collection,
-  addDoc,
-  serverTimestamp,
-  query,
-  orderBy,
-  onSnapshot,
-  doc,
-  updateDoc,
-  increment
-} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+  getFirestore, collection, addDoc, onSnapshot,
+  query, orderBy, doc, updateDoc, arrayUnion,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCZSFGunkDsK8m3EowBLY9d2nEDZva5Is4",
   authDomain: "por-mais-uma-vida.firebaseapp.com",
-  projectId: "por-mais-uma-vida",
-  storageBucket: "por-mais-uma-vida.firebasestorage.app",
-  messagingSenderId: "909230295729",
-  appId: "1:909230295729:web:f0a6a2775ff84e4f63b090"
+  projectId: "por-mais-uma-vida"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const col = collection(db, "desabafos");
+const postsDiv = document.getElementById("posts");
 
-window.publicar = async () => {
-  const nome = document.getElementById("nome").value || "Anônimo";
-  const texto = document.getElementById("texto").value.trim();
-  if (!texto) return alert("Escreva algo.");
+function formatarData(ts) {
+  if (!ts) return "";
+  return ts.toDate().toLocaleString("pt-BR");
+}
 
-  await addDoc(col, {
-    nome,
+window.criarPost = async () => {
+  const nome = nomePost.value.trim() || "Anônimo";
+  const texto = textoPost.value.trim();
+  if (!texto) return;
+
+  await addDoc(collection(db, "desabafos"), {
+    autor: nome,
     texto,
-    likes: 0,
+    apoios: [],
     criadoEm: serverTimestamp()
   });
 
-  document.getElementById("texto").value = "";
+  textoPost.value = "";
 };
 
-function tempo(ts) {
-  if (!ts) return "";
-  const s = Math.floor((Date.now() - ts.toMillis()) / 1000);
-  if (s < 60) return "agora";
-  if (s < 3600) return `há ${Math.floor(s/60)} min`;
-  if (s < 86400) return `há ${Math.floor(s/3600)} h`;
-  return `há ${Math.floor(s/86400)} dias`;
-}
+window.apoiarPost = async (id) => {
+  const nome = prompt("Seu nome (opcional):") || "Anônimo";
+  const msg = prompt("Mensagem de apoio:");
+  if (!msg) return;
 
-const q = query(col, orderBy("criadoEm", "desc"));
+  await updateDoc(doc(db, "desabafos", id), {
+    apoios: arrayUnion({ autor: nome, texto: msg })
+  });
+};
+
+const q = query(collection(db, "desabafos"), orderBy("criadoEm", "desc"));
+
 onSnapshot(q, snap => {
-  const lista = document.getElementById("lista");
-  lista.innerHTML = "";
+  postsDiv.innerHTML = "";
   snap.forEach(d => {
-    const x = d.data();
-    lista.innerHTML += `
-      <div class="card">
-        <small>${x.nome} • ${tempo(x.criadoEm)}</small>
-        <p>${x.texto}</p>
-        <span class="like" onclick="like('${d.id}')">❤️ ${x.likes}</span>
+    const p = d.data();
+    postsDiv.innerHTML += `
+      <div class="post">
+        <div class="autor">— ${p.autor || "Anônimo"}</div>
+        <div class="tempo">${formatarData(p.criadoEm)}</div>
+        <div class="texto">${p.texto}</div>
+        <div class="acoes" onclick="apoiarPost('${d.id}')">
+          ❤️ ${(p.apoios || []).length} · Apoiar
+        </div>
+        ${(p.apoios || []).map(a =>
+          `<div class="apoio">💙 <strong>${a.autor}</strong>: ${a.texto}</div>`
+        ).join("")}
       </div>
     `;
   });
 });
-
-window.like = async (id) => {
-  await updateDoc(doc(db, "desabafos", id), {
-    likes: increment(1)
-  });
-};
 </script>
 
 </body>
